@@ -25,7 +25,7 @@ jobs:
 
 # Faz o publish do pacote ignorando a etapa de testes.
     - name: Publish to GitHub Packages
-      run: mvn deploy -DskipTests --settings settings.xml
+      run: mvn deploy -DskipTests --settings . /settings.xml
 
 # Configura e autentica as permissões necessárias para o GitHub Packages.
       env:
