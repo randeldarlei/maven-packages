@@ -1,0 +1,43 @@
+name: GitHub Packages Workflow
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+# Validação e configuração do Java.
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16' # Versão utilizada no projeto.
+
+# Realiza um build e execução limpa do Maven. 
+    - name: Build and package with Maven
+      run: mvn clean package
+
+# Faz o publish do pacote ignorando a etapa de testes.
+    - name: Publish to GitHub Packages
+      run: mvn deploy -DskipTests --settings settings.xml
+
+# Configura e autentica as permissões necessárias para o GitHub Packages.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# Excluí o arquivo settings.xml.
+    - name: Delete local settings.xml file
+      run: rm -f settings.xml
+
+#Realiza o processo de Download e utilização do pacote no projeto. 
+    - name: Download package from GitHub Packages
+      run: mvn dependency:copy -Dartifact=<groupId>:<artifactId>:<version> -DoutputDirectory=./libs
+
+    - name: Use the downloaded package
+      run: java -jar ./libs/<artifactId>-<version>.jar
